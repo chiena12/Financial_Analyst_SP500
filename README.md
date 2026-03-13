@@ -1,26 +1,26 @@
-Certainly! Here is a professional README.md in English, tailored for your Quantitative Finance project as an FTU student.
+# S&P 500 Financial Analyst: Stock Trend Prediction 📈
 
-Stock Price Movement Prediction: A Stacking Ensemble Approach (Bi-LSTM & XGBoost)
-This project explores the synergy between Deep Learning (Sequential Memory) and Machine Learning (Gradient Boosting) to predict stock market trends and build an algorithmic trading strategy.
+Dự án sử dụng các mô hình học máy và học sâu (Machine Learning & Deep Learning) để phân tích dữ liệu lịch sử của chỉ số S&P 500 và dự báo xu hướng thị trường.
 
-📌 Project Overview
-The core objective is to solve a binary classification problem: predicting whether tomorrow's closing price will be higher or lower than today's.
+## 📌 Tổng quan dự án (Project Overview)
+Dự án tập trung vào việc thu thập dữ liệu tài chính 10 năm của S&P 500 từ Kaggle, sau đó thực hiện kỹ thuật tiền xử lý dữ liệu và xây dựng các mô hình dự báo để so sánh hiệu quả giữa các thuật toán khác nhau.
 
-Target: Binary direction (1 for Up, 0 for Down).
+### Các tính năng chính:
+* **Data Acquisition:** Tải dữ liệu tự động thông qua thư viện `kagglehub`.
+* **Backtesting:** Hệ thống tự động kiểm thử chiến lược trên dữ liệu lịch sử.
+* **Model Comparison:** So sánh trực quan giữa mô hình truyền thống (XGBoost) và mô hình học sâu (Bi-LSTM).
+* **Performance Metrics:** Đánh giá dựa trên lợi nhuận thực tế (Cumulative Return), chỉ số Sharpe và Max Drawdown.
 
-Methodology: A Two-Tier Stacking Ensemble. We leverage the time-series feature extraction of Bi-LSTM and pass its predictions as a high-level feature into XGBoost to refine the final trading signal.
+## 🛠 Công nghệ sử dụng (Tech Stack)
+* **Ngôn ngữ:** Python 3.x
+* **Thư viện phân tích dữ liệu:** Pandas, Numpy
+* **Trực quan hóa:** Matplotlib, Plotly
+* **Học máy & Học sâu:** * `TensorFlow/Keras` (cho mô hình Bi-LSTM)
+    * `XGBoost`
+    * `Scikit-learn`
+* **Môi trường:** Google Colab / VS Code
 
-🛠 Model Architecture
-The system is built on a hierarchical structure to capture both temporal dependencies and non-linear patterns:
-
-Tier 1 - Bi-Directional LSTM (Deep Learning):
-
-Designed with a stacked architecture (2 layers) to process sequences from both past-to-future and future-to-past contexts.
-
-Includes Batch Normalization, Dropout (0.35), and L2 Regularization to mitigate overfitting in noisy financial data.
-
-Tier 2 - XGBoost Classifier (Machine Learning):
-
-Acts as the "Meta-Learner" that combines traditional technical indicators (RSI, EMA, Volatility) with the LSTM Probability Output.
-
-Optimized with a low learning rate (0.03 - 0.05) and subsampling to ensure robust generalization.
+## 📊 Kết quả thực nghiệm (Experimental Results)
+Dựa trên quá trình thử nghiệm, dự án đã rút ra các kết luận quan trọng:
+* **Bi-LSTM:** Đạt tỷ lệ sinh lời cao nhất (**16.17%**) với sự ổn định vượt trội so với thị trường (Buy & Hold).
+* **XGBoost:** Hiệu quả thấp hơn trong việc bắt các chuỗi thời gian dài nhưng có tốc độ huấn luyện nhanh.
