@@ -291,6 +291,12 @@ sns.histplot(y_pred_probs, kde=True, ax=ax6)
 ax6.set_title("Phân phối xác suất ở trong phần dự báo")
 st.pyplot(fig6)
 
+# Đoạn code mới: Tính toán và in số lượng nhãn ra Streamlit
+counts_lstm = pd.Series(y_pred_labels).value_counts()
+col1, col2 = st.columns(2)
+col1.metric("Số lượng nhãn 0 (Giảm/Sideway)", counts_lstm.get(0, 0))
+col2.metric("Số lượng nhãn 1 (Tăng)", counts_lstm.get(1, 0))
+
 st.subheader("VẼ BIỂU ĐỒ SO SÁNH LỢI NHUẬN GIỮA VIỆC SỬ DỤNG BI-LSTM VÀ CHIẾN THUẬT MUA RỒI GIỮ")
 y_test_returns = test_data['Log_Daily_Return'].values[60:]
 results = pd.DataFrame({'Actual_Return': y_test_returns.flatten(), 'Prob_Up': y_pred_probs.flatten()})
@@ -347,6 +353,12 @@ fig8, ax8 = plt.subplots()
 sns.histplot(y_pred_probs_ml, kde=True, ax=ax8)
 ax8.set_title("Phân phối xác suất ở trong phần dự báo")
 st.pyplot(fig8)
+# Đoạn code mới: Tính toán và in số lượng nhãn ra Streamlit
+counts_xgb = pd.Series(y_pred_labels_ml).value_counts()
+c1, c2 = st.columns(2)
+c1.metric("Số lượng nhãn 0 (Giảm/Sideway)", counts_xgb.get(0, 0))
+c2.metric("Số lượng nhãn 1 (Tăng)", counts_xgb.get(1, 0))
+
 
 st.subheader("VẼ BIỂU ĐỒ SO SÁNH MỨC ĐỘ QUAN TRỌNG CÁC FEATURES")
 feature_importance = pd.Series(xgb_model.feature_importances_, index=features)
