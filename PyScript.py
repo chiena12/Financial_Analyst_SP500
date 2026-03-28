@@ -7,6 +7,7 @@ import os
 import kagglehub
 import pandas_ta as ta
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
@@ -329,44 +330,78 @@ st.write(f"**Mức sinh lời của chiến thuật:** {(results['Strategy_Cum']
 # -------------------------------------------------------------------
 # 9. MÔ HÌNH HỌC MÁY (XGBOOSTCLASSIFIER)
 # -------------------------------------------------------------------
-st.header("XÂY DỰNG VÀ ĐÁNH GIÁ MÔ HÌNH HỌC MÁY (XGBOOSTCLASSIFIER)")
+st.header("TỐI ƯU HÓA MÔ HÌNH XGBOOST (GRIDSEARCHCV)")
 
-features.append('Lag_Log_Return')
-X_train_ml = train_data[features]
+# Đảm bảo danh sách features không bị trùng lặp khi re-run
+ml_features = [f for f in features if f != 'Lag_Log_Return']
+if 'Lag_Log_Return' not in ml_features:
+    ml_features.append('Lag_Log_Return')
+
+X_train_ml = train_data[ml_features]
 y_train_ml = train_data['Target_Class']
-X_test_ml = test_data[features]
+X_test_ml = test_data[ml_features]
 y_test_ml = test_data['Target_Class']
 
+# 1. Định nghĩa lưới tham số (Grid) - Giữ ở mức vừa phải để chạy ổn định trên Cloud
+param_grid = {
+    'n_estimators': [100, 300, 500],
+    'max_depth': [3, 5, 7],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'subsample': [0.8],
+    'colsample_bytree': [0.8]
+}
 
-# Huấn luyện XGBoost
-xgb_model = XGBClassifier(
-    n_estimators=1000, learning_rate=0.05, max_depth=6, 
-    subsample=0.8, colsample_bytree=0.8, eval_metric='logloss', random_state=42
-)
-xgb_model.fit(X_train_ml, y_train_ml)
-y_pred_probs_ml = xgb_model.predict_proba(X_test_ml)[:, 1]
+# 2. Sử dụng TimeSeriesSplit thay cho K-Fold thông thường vì đây là dữ liệu chuỗi thời gian
+tscv = TimeSeriesSplit(n_splits=3)
+
+with st.spinner('Đang tìm kiếm bộ tham số tối ưu (GridSearchCV)... Vui lòng đợi trong giây lát.'):
+    xgb_base = XGBClassifier(eval_metric='logloss', random_state=42)
+    
+    grid_search = GridSearchCV(
+        estimator=xgb_base, 
+        param_grid=param_grid, 
+        cv=tscv, 
+        scoring='accuracy', 
+        n_jobs=-1 # Tận dụng đa nhân CPU
+    )
+    grid_search.fit(X_train_ml, y_train_ml)
+
+# 3. Lấy bộ tham số và mô hình tốt nhất
+best_params = grid_search.best_params_
+best_xgb = grid_search.best_estimator_
+
+# Hiển thị bộ tham số tốt nhất lên giao diện
+st.success("Đã tìm thấy bộ tham số tối ưu!")
+st.write("**Best Parameters:**")
+st.json(best_params)
+
+# Dự báo với mô hình đã tối ưu
+y_pred_probs_ml = best_xgb.predict_proba(X_test_ml)[:, 1]
 threshold_ml = np.median(y_pred_probs_ml)
 y_pred_labels_ml = (y_pred_probs_ml > threshold_ml).astype(int)
 
-st.subheader("VẼ BIỂU ĐỒ PHÂN PHỐI NHÃN (XGBOOST)")
-fig8, ax8 = plt.subplots()
-sns.histplot(y_pred_probs_ml, kde=True, ax=ax8)
-ax8.set_title("Phân phối xác suất ở trong phần dự báo")
+# --- PHẦN VẼ BIỂU ĐỒ (Giữ nguyên logic Matplotlib an toàn) ---
+st.subheader("VẼ BIỂU ĐỒ PHÂN PHỐI NHÃN (XGBOOST OPTIMIZED)")
+fig8, ax8 = plt.subplots(figsize=(8, 4))
+sns.histplot(y_pred_probs_ml, kde=True, ax=ax8, color='skyblue')
+ax8.set_title("Phân phối xác suất dự báo sau khi tối ưu")
 st.pyplot(fig8)
-# Đoạn code mới: Tính toán và in số lượng nhãn ra Streamlit
+plt.close(fig8)
+
+# In số lượng nhãn
 counts_xgb = pd.Series(y_pred_labels_ml).value_counts()
 c1, c2 = st.columns(2)
-c1.metric("Số lượng nhãn 0 (Giảm/Sideway)", counts_xgb.get(0, 0))
-c2.metric("Số lượng nhãn 1 (Tăng)", counts_xgb.get(1, 0))
+c1.metric("Nhãn 0 (Giảm/Sideway)", counts_xgb.get(0, 0))
+c2.metric("Nhãn 1 (Tăng)", counts_xgb.get(1, 0))
 
-
-st.subheader("VẼ BIỂU ĐỒ SO SÁNH MỨC ĐỘ QUAN TRỌNG CÁC FEATURES")
-feature_importance = pd.Series(xgb_model.feature_importances_, index=features)
+# --- FEATURE IMPORTANCE ---
+st.subheader("MỨC ĐỘ QUAN TRỌNG CÁC FEATURES (BEST MODEL)")
+feature_importance = pd.Series(best_xgb.feature_importances_, index=ml_features)
 fig9, ax9 = plt.subplots(figsize=(10, 6))
 feature_importance.nlargest(10).plot(kind='barh', color='purple', ax=ax9)
-ax9.set_title('Thứ hạng features quan trọng')
-ax9.set_xlabel('% quan trọng')
+ax9.set_title('Top 10 Features ảnh hưởng đến dự báo')
 st.pyplot(fig9)
+
 
 st.markdown("**CÁC FEATURES CÓ ĐÓNG GÓP GẦN NHƯ TƯƠNG ĐƯƠNG NHAU**")
 
