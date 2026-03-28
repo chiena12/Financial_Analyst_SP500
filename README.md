@@ -1,5 +1,7 @@
 # Financial_Analyst_SP500
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://financialanalystsp500-ldw3wqfzxm6e6mqm3abxdh.streamlit.app/)
+
 📈 S&P 500 Portfolio Optimization & Trend Prediction
 This project integrates Modern Portfolio Theory (MPT) with Deep Learning to build an automated system for asset allocation and market trend forecasting using S&P 500 historical data.
 
@@ -18,6 +20,8 @@ This project integrates Modern Portfolio Theory (MPT) with Deep Learning to buil
 * XGBoost (Machine Learning): A gradient boosting classifier used to predict next-day price direction (Bullish/Bearish).
 
 ⚙️ Quantitative Engineering: 
+
+
 
 * Engineered technical indicators such as RSI, EMA Cross, Log Returns, and Rolling Volatility to feed the predictive models.
 
