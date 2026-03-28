@@ -7,7 +7,7 @@ import os
 import kagglehub
 import pandas_ta as ta
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
+from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
@@ -355,20 +355,19 @@ param_grid = {
 tscv = TimeSeriesSplit(n_splits=3)
 
 with st.spinner('Đang tìm kiếm bộ tham số tối ưu (GridSearchCV)... Vui lòng đợi trong giây lát.'):
-    xgb_base = XGBClassifier(eval_metric='logloss', random_state=42)
+    xgb_base = RandomizedSearchCV(eval_metric='logloss', random_state=42)
     
-    grid_search = GridSearchCV(
+    rand_search = GridSearchCV(
         estimator=xgb_base, 
         param_grid=param_grid, 
         cv=tscv, 
-        scoring='accuracy', 
-        n_jobs=-1 # Tận dụng đa nhân CPU
+        scoring='accuracy', # Tận dụng đa nhân CPU
     )
-    grid_search.fit(X_train_ml, y_train_ml)
+    rand_search.fit(X_train_ml, y_train_ml)
 
 # 3. Lấy bộ tham số và mô hình tốt nhất
-best_params = grid_search.best_params_
-best_xgb = grid_search.best_estimator_
+best_params = rand_search.best_params_
+best_xgb = rand_search.best_estimator_
 
 # Hiển thị bộ tham số tốt nhất lên giao diện
 st.success("Đã tìm thấy bộ tham số tối ưu!")
