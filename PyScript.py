@@ -330,7 +330,7 @@ st.write(f"**Mức sinh lời của chiến thuật:** {(results['Strategy_Cum']
 # -------------------------------------------------------------------
 # 9. MÔ HÌNH HỌC MÁY (XGBOOSTCLASSIFIER)
 # -------------------------------------------------------------------
-st.header("TỐI ƯU HÓA MÔ HÌNH XGBOOST (GRIDSEARCHCV)")
+st.header("TỐI ƯU HÓA MÔ HÌNH XGBOOST (RANDOMIZEDSEARCHCV)")
 
 # Đảm bảo danh sách features không bị trùng lặp khi re-run
 ml_features = [f for f in features if f != 'Lag_Log_Return']
@@ -342,19 +342,19 @@ y_train_ml = train_data['Target_Class']
 X_test_ml = test_data[ml_features]
 y_test_ml = test_data['Target_Class']
 
-# 1. Định nghĩa lưới tham số (Grid) - Giữ ở mức vừa phải để chạy ổn định trên Cloud
+# 1. Định nghĩa các tham số
 param_grid = {
     'n_estimators': [100, 300, 500],
     'max_depth': [3, 5, 7],
     'learning_rate': [0.01, 0.05, 0.1],
-    'subsample': [0.8],
-    'colsample_bytree': [0.8]
+    'subsample': [0.8,0.85,0.7],
+    'colsample_bytree': [0.8,0.85,0.7]
 }
 
 # 2. Sử dụng TimeSeriesSplit thay cho K-Fold thông thường vì đây là dữ liệu chuỗi thời gian
 tscv = TimeSeriesSplit(n_splits=3)
 
-with st.spinner('Đang tìm kiếm bộ tham số tối ưu (GridSearchCV)... Vui lòng đợi trong giây lát.'):
+with st.spinner('Đang tìm kiếm bộ tham số tối ưu RandomizedSearchCV)... Vui lòng đợi trong giây lát.'):
     xgb_base = XGBClassifier(eval_metric='logloss', random_state=42)
     
     rand_search = RandomizedSearchCV(
@@ -370,7 +370,6 @@ best_params = rand_search.best_params_
 best_xgb = rand_search.best_estimator_
 
 # Hiển thị bộ tham số tốt nhất lên giao diện
-st.success("Đã tìm thấy bộ tham số tối ưu!")
 st.write("**Best Parameters:**")
 st.json(best_params)
 
