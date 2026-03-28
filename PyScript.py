@@ -359,9 +359,9 @@ with st.spinner('Đang tìm kiếm bộ tham số tối ưu (GridSearchCV)... Vu
     
     rand_search = RandomizedSearchCV(
         estimator=xgb_base, 
-        param_grid=param_grid, 
+        param_distributions=param_grid, 
         cv=tscv, 
-        scoring='accuracy', # Tận dụng đa nhân CPU
+        scoring='accuracy', 
     )
     rand_search.fit(X_train_ml, y_train_ml)
 
