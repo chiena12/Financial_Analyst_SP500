@@ -331,10 +331,6 @@ y_train_ml = train_data['Target_Class']
 X_test_ml = test_data[features]
 y_test_ml = test_data['Target_Class']
 
-# Huấn luyện LazyClassifier (Chạy nền, không in bảng vì không có nhận xét)
-with st.spinner('Đang chạy LazyPredict...'):
-    clf = LazyClassifier(verbose=0, ignore_warnings=True, custom_metric=None)
-    models, predictions = clf.fit(X_train_ml, X_test_ml, y_train_ml, y_test_ml)
 
 # Huấn luyện XGBoost
 xgb_model = XGBClassifier(
