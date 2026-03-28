@@ -357,7 +357,7 @@ tscv = TimeSeriesSplit(n_splits=3)
 with st.spinner('Đang tìm kiếm bộ tham số tối ưu (GridSearchCV)... Vui lòng đợi trong giây lát.'):
     xgb_base = RandomizedSearchCV(eval_metric='logloss', random_state=42)
     
-    rand_search = GridSearchCV(
+    rand_search = RandomizedSearchCV(
         estimator=xgb_base, 
         param_grid=param_grid, 
         cv=tscv, 
