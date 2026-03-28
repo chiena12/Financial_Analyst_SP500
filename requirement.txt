@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+matplotlib
+seaborn
+kagglehub
+pandas-ta
+scikit-learn
+tensorflow
+xgboost
+lazypredict
