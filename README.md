@@ -1,6 +1,6 @@
 # Financial_Analyst_SP500
 
-**[REPORT OF THE PROJECTS)](https://chiena12.github.io/Financial_Analyst_SP500/)**
+**[🤖 REPORT OF THE PROJECT](https://chiena12.github.io/Financial_Analyst_SP500/)**
 
 ---
 
